@@ -1,4 +1,4 @@
-Text File Compressor
+                                                            Text File Compressor
 Overview
 A C++ tool for compressing and decompressing text files using the Huffman encoding algorithm. It reduces file size while preserving data integrity through efficient encoding.
 
