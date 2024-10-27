@@ -1,0 +1,4 @@
+g++ huffman.cpp huffmanCoding.cpp
+./a.exe input.txt output.txt  
+g++ huffman.cpp huffmanDeCoding.cpp
+./a.exe input.txt output.txt  

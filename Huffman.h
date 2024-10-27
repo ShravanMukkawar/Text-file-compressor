@@ -1,81 +1,57 @@
 #ifndef HUFFMAN_H
 #define HUFFMAN_H
 
-// ---------- INCLUDES ------------------------------------------------------------------
-#include <map>
-#include <vector>
 #include <string>
-#include "Node.h"
+#include <queue>
+#include <vector>
+#include <fstream>
+using namespace std;
 
-// ---------- STRUCTS -------------------------------------------------------------------
-struct DataFile {
-    char  magicNumber;
-    int   size;
-    char  paddingOffset;
-    char* data;
+struct huffman_node
+{
+	char id;   //character 
+	int freq;  //frequency of the character
+	string code;  //huffman code for the character
+	huffman_node* left;
+	huffman_node* right;
+	huffman_node()
+	{  //constructor
+		left = right = NULL;
+	}
 };
-    
-struct TableEntry{
-    char data;
-    char size;
-    int  bits;
-};
-    
-struct TableFile {
-    char magicNumber;
-    std::vector<TableEntry> data;
-};
+typedef huffman_node* node_ptr;
 
-// ---------- TYPEDEFS -------------------------------------------------------------
-typedef std::vector<Node*>          node_v;
-typedef std::vector<int>            int_v;
-typedef std::pair<int, int>         intpair;
-typedef std::vector<intpair>        intpair_v;
-typedef std::map<char, intpair>     char_intpair_m;
-typedef std::map<char, int>         char_int_m;
-typedef std::vector<TableEntry>     TableEntries;
+class huffman
+{
+protected:
+	node_ptr node_array[128];  //array for 128 characters in the Ascii Table
+	fstream in_file, out_file;
+	node_ptr child, parent, root;
+	char id;
+	string in_file_name, out_file_name;
+	class compare
+	{  //a object function to set comparing rule of priority queue
+	public:
+		bool operator()(const node_ptr& c1, const node_ptr& c2) const
+		{
+			return c1->freq > c2->freq;
+		}
+	};
+	priority_queue<node_ptr, vector<node_ptr>, compare> pq;  //priority queue of frequency from high to low
+	void create_node_array();  
+	void traverse(node_ptr, string);  //traverse the huffman tree and get huffman code for a character
+	int binary_to_decimal(const string&);  //convert a 8-bit 0/1 string of binary code to a decimal integer 
+	string decimal_to_binary(int);  //convert a decimal integer to a 8-bit 0/1 string of binary code
+	inline void build_tree(const string&, char);  //build the huffman tree according to information from file 
 
-// ---------- HUFFMAN CLASS -------------------------------------------------------------
-class Huffman {
-private:
-
-    // ---------- VARIABLES -------------------------------------------------------------
-    Node*           tree;
-    DataFile*       datafile;
-    TableFile*      tablefile;
-    std::string     decodedResult;
-    intpair_v       encodedResult;
-    char_intpair_m* encodingMap;
-    char_int_m*     frequencies;
-
-    // ---------- PRIVATE FUNCTIONS -----------------------------------------------------
-    char_int_m* getFrequencies(char* data, int size);
-    intpair_v   buildEncodedResult(char* data, int size);
-    
-    // Create data structs from private data
-    void createDataFile(intpair_v& v);
-    void createTableFile(char_intpair_m& m);
-    
-    // Read data structs from file
-    bool readDataFile(std::string fstr);
-    bool readTableFile(std::string fstr);
-    
-    // Write data structs to file
-    bool writeTableFile(std::string fstr);
-    bool writeDataFile(std::string fstr);
-    
-    // DIV
-    void Sort(node_v& v);
-    void buildTree();
-    void showTree();
-    void showIntVector(int_v& v);
-    
 public:
-    // ---------- PUBLIC FUNCTIONS ------------------------------------------------------
-    Huffman();
-    ~Huffman();
-    void encode(std::string filename);
-    void decode(std::string data_filename, std::string table_filename);
+	huffman(string, string);
+	void create_pq();
+	void create_huffman_tree();
+	void calculate_huffman_codes();
+	void coding_save();
+	void decoding_save();
+	void recreate_huffman_tree();
 };
 
 #endif
